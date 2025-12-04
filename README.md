@@ -142,49 +142,16 @@ API_URL = "https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-D0047-091?Authori
 for page in range(1, 11):  # 改為你需要的頁數
 ```
 
-## 📊 表格格式
+## 📸 DEMO 圖片
 
-### 天氣預報表格
-| 地點 | 時間 | 平均溫度 | 降雨機率 |
-|-----|------|--------|-------|
-| 台北 | 2025-12-04 12:00 | 25 | 30% |
+### Part 1 - 天氣預報儀表板
+![天氣預報界面](img/image1.png)
 
-### 電影資訊表格
-| 電影名 | 上映地區 | 上映時間 | 類型 | 評分 |
-|------|--------|--------|------|-----|
-| 霸王別姬 | 中國內地、中國香港 | 1993-07-26 上映 | 劇情、愛情 | 9.5 |
+### Part 2 - 電影資訊爬蟲
+![電影資訊表格](img/image2.png)
 
-## 🌐 生產環境部署
-
-### 使用 Streamlit Cloud
-1. 將項目推送到 GitHub
-2. 連接到 [Streamlit Cloud](https://streamlit.io/cloud)
-3. 部署應用到公網
-
-### 使用 Docker
-```dockerfile
-FROM python:3.10-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY . .
-CMD ["streamlit", "run", "app.py"]
-```
-
-## 📚 相關資源
-
-- [Streamlit 官方文檔](https://docs.streamlit.io/)
-- [中央氣象署開放資料平台](https://opendata.cwa.gov.tw/)
-- [BeautifulSoup 文檔](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
-- [SQLite3 教程](https://www.sqlite.org/docs.html)
-
-## 📧 聯繫方式
-
-有任何問題或建議，歡迎提出 Issue 或 Pull Request。
-
-## 📄 許可證
-
-MIT License
+### 應用交互功能
+![應用功能展示](img/image3.png)
 
 ---
 
