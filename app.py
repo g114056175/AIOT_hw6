@@ -114,6 +114,7 @@ def plot_weather_chart(df, y_col, title, y_label):
 def scrape_movies() -> pd.DataFrame:
     """
     爬取電影資訊，頁數從 1 到 10
+    提取：電影名稱、評分、類型、電影圖片 URL
     """
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
@@ -128,7 +129,7 @@ def scrape_movies() -> pd.DataFrame:
             url = base_url.format(page)
             progress_placeholder.info(f"正在爬取第 {page}/10 頁...")
             
-            response = requests.get(url, headers=headers, timeout=10)
+            response = requests.get(url, headers=headers, timeout=10, verify=False)
             response.encoding = 'utf-8'
             soup = BeautifulSoup(response.text, 'html.parser')
             
@@ -140,6 +141,10 @@ def scrape_movies() -> pd.DataFrame:
                     name_elem = item.find('h2')
                     name = name_elem.text.strip() if name_elem else 'N/A'
                     
+                    # 評分（從 p class="score" 提取）
+                    score_elem = item.find('p', class_='score')
+                    score = score_elem.text.strip() if score_elem else 'N/A'
+                    
                     # 類型（從 categories div 中的 button 內容提取）
                     categories_buttons = item.find('div', class_='categories')
                     categories_list = []
@@ -150,33 +155,15 @@ def scrape_movies() -> pd.DataFrame:
                                 categories_list.append(span.text.strip())
                     categories = '、'.join(categories_list) if categories_list else 'N/A'
                     
-                    # 上映地區和時間（從 info div 中提取）
-                    info_divs = item.find_all('div', class_='info')
-                    region = 'N/A'
-                    release_time = 'N/A'
-                    
-                    if len(info_divs) > 0:
-                        # 第一個 info div 包含地區和時間
-                        spans = info_divs[0].find_all('span')
-                        if len(spans) > 0:
-                            region = spans[0].text.strip()
-                    
-                    if len(info_divs) > 1:
-                        # 第二個 info div 包含上映日期
-                        span = info_divs[1].find('span')
-                        if span:
-                            release_time = span.text.strip()
-                    
-                    # 評分（從 p class="score" 提取）
-                    score_elem = item.find('p', class_='score')
-                    score = score_elem.text.strip() if score_elem else 'N/A'
+                    # 電影圖片 URL（從 img 標籤的 src 提取）
+                    img_elem = item.find('img', class_='cover')
+                    image_url = img_elem.get('src', 'N/A') if img_elem else 'N/A'
                     
                     movie_data = {
-                        '電影名': name,
-                        '上映地區': region,
-                        '上映時間': release_time,
+                        '電影名稱': name,
+                        '評分': score,
                         '類型': categories,
-                        '評分': score
+                        '電影圖片URL': image_url
                     }
                     
                     movies.append(movie_data)
@@ -267,9 +254,23 @@ def part2_movies():
     if not movies_df.empty:
         st.success(f"✅ 成功爬取 {len(movies_df)} 部電影！")
         
+        # 保存為 CSV
+        csv_file = os.path.join(BASE_DIR, 'movie.csv')
+        movies_df.to_csv(csv_file, index=False, encoding='utf-8-sig')
+        st.info(f"📁 數據已自動保存到 `movie.csv`")
+        
         st.markdown("---")
         st.header("📊 電影資訊表")
         st.dataframe(movies_df, use_container_width=True)
+        
+        # 提供 CSV 下載按鈕
+        csv_data = movies_df.to_csv(index=False, encoding='utf-8-sig')
+        st.download_button(
+            label="📥 下載為 CSV",
+            data=csv_data,
+            file_name="movie.csv",
+            mime="text/csv"
+        )
         
     else:
         st.error("無法爬取電影資訊，請檢查網路連線或稍後重試。")
